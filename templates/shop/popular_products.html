@@ -1,0 +1,29 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Популярные товары{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom: 1.5rem;">🔥 Популярные товары</h1>
+    
+    {% if products %}
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-content">
+                    <div class="product-name">{{ product.name }}</div>
+                    <div class="product-category">{{ product.category }}</div>
+                    <div class="product-price">{{ product.price|floatformat:0 }} ₽</div>
+                    <div class="product-stats">
+                        <div>🛒 Заказов: {{ product.order_count }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="loading">😔 Пока нет популярных товаров</div>
+    {% endif %}
+</div>
+{% endblock %}

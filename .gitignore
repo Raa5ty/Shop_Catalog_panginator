@@ -1,0 +1,8 @@
+# Игнорировать виртуальное окружение
+.venv/
+venv/
+
+# Игнорировать все файлы Jupyter
+.ipynb_checkpoints/
+*.ipynb
+

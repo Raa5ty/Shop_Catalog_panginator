@@ -1,0 +1,64 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block title %}Каталог товаров{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom: 1.5rem;">📦 Каталог товаров</h1>
+    
+    <!-- Блок фильтрации -->
+    <div class="filters-section">
+        <form id="filter-form" class="filter-form">
+            <div class="filter-group">
+                <label>📂 Категория</label>
+                <select name="category" id="category">
+                    <option value="">Все категории</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>💰 Цена (от - до)</label>
+                <input type="number" name="min_price" id="min_price" placeholder="от" step="100">
+                <input type="number" name="max_price" id="max_price" placeholder="до" step="100">
+            </div>
+            
+            <div class="filter-group">
+                <label>📅 Дата добавления</label>
+                <select name="days_ago" id="days_ago">
+                    <option value="">За всё время</option>
+                    <option value="7">Последние 7 дней</option>
+                    <option value="30">Последние 30 дней</option>
+                    <option value="90">Последние 90 дней</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>🔄 Сортировка</label>
+                <select name="sort" id="sort">
+                    <option value="popularity_desc">🔥 По популярности (убыв.)</option>
+                    <option value="price_asc">💰 Цена (возр.)</option>
+                    <option value="price_desc">💰 Цена (убыв.)</option>
+                    <option value="date_desc">📅 Новые сначала</option>
+                    <option value="date_asc">📅 Старые сначала</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Результаты -->
+    <div class="results-info">
+        <span id="total-count">Загрузка...</span>
+    </div>
+    
+    <div id="product-list" class="products-grid">
+        <div class="loading">⏳ Загрузка товаров...</div>
+    </div>
+    
+    <div id="pagination" class="pagination"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/catalog.js' %}"></script>
+{% endblock %}
