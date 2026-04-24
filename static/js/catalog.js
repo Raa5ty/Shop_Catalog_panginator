@@ -103,17 +103,26 @@ class ProductCatalog {
         const productList = document.getElementById('product-list');
         
         if (!products || products.length === 0) {
-            productList.innerHTML = '<div class="loading">😔 Товары не найдены</div>';
+            productList.innerHTML = '<div class="col-12"><div class="alert alert-info text-center">😔 Товары не найдены</div></div>';
             return;
         }
         
         productList.innerHTML = products.map(product => `
-            <div class="product-card">
-                <div class="product-content">
-                    <div class="product-name">${this.escapeHtml(product.name)}</div>
-                    <div class="product-category">${this.escapeHtml(product.category)}</div>
-                    <div class="product-price">${this.formatPrice(product.price)} ₽</div>
-                    <div class="product-stats">
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100">
+                    <div class="text-center pt-2">
+                        <a href="/shop/product/${product.id}/">
+                            <img src="${product.image}" style="height: 100px; width: auto; object-fit: contain;" alt="${this.escapeHtml(product.name)}">
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="/shop/product/${product.id}/" class="text-dark text-decoration-none">${this.escapeHtml(product.name)}</a>
+                        </h5>
+                        <p class="card-text text-muted small">${this.escapeHtml(product.category)}</p>
+                        <h4 class="text-primary">${this.formatPrice(product.price)} ₽</h4>
+                    </div>
+                    <div class="card-footer bg-white text-muted small">
                         <div>📅 Добавлен: ${product.date_added}</div>
                         <div>🛒 Заказов: ${product.order_count}</div>
                     </div>
@@ -130,26 +139,23 @@ class ProductCatalog {
             return;
         }
         
-        let html = '';
+        let html = '<ul class="pagination">';
         
-        // Кнопка "Первая"
         if (pagination.has_previous) {
-            html += `<a href="#" data-page="1">«« Первая</a>`;
-            html += `<a href="#" data-page="${pagination.previous_page_number}">« Предыдущая</a>`;
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="1">««</a></li>`;
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="${pagination.previous_page_number}">«</a></li>`;
         }
         
-        // Текущая страница
-        html += `<span class="current-page">${pagination.current_page}</span>`;
+        html += `<li class="page-item active"><span class="page-link">${pagination.current_page}</span></li>`;
         
-        // Кнопка "Следующая"
         if (pagination.has_next) {
-            html += `<a href="#" data-page="${pagination.next_page_number}">Следующая »</a>`;
-            html += `<a href="#" data-page="${pagination.total_pages}">Последняя »»</a>`;
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="${pagination.next_page_number}">»</a></li>`;
+            html += `<li class="page-item"><a class="page-link" href="#" data-page="${pagination.total_pages}">»»</a></li>`;
         }
         
+        html += '</ul>';
         paginationContainer.innerHTML = html;
         
-        // Привязываем обработчики
         paginationContainer.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();

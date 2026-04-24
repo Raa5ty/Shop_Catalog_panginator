@@ -1,29 +1,36 @@
 {% extends 'shop/base.html' %}
-{% load static %}
 
 {% block title %}Популярные товары{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 style="margin-bottom: 1.5rem;">🔥 Популярные товары</h1>
-    
-    {% if products %}
-        <div class="products-grid">
-            {% for product in products %}
-            <div class="product-card">
-                <div class="product-content">
-                    <div class="product-name">{{ product.name }}</div>
-                    <div class="product-category">{{ product.category }}</div>
-                    <div class="product-price">{{ product.price|floatformat:0 }} ₽</div>
-                    <div class="product-stats">
-                        <div>🛒 Заказов: {{ product.order_count }}</div>
-                    </div>
-                </div>
+<h1 class="mb-4">⭐ Популярные товары</h1>
+
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-6 col-lg-4 col-xl-3 mb-3">
+        <div class="card h-100">
+            <div class="text-center pt-2">
+                <a href="{% url 'product_detail' product.id %}">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}/static/images/no-image.png{% endif %}" 
+                    style="height: 100px; width: auto; object-fit: contain;" alt="{{ product.name }}">
+                </a>
             </div>
-            {% endfor %}
+            <div class="card-body p-2">
+                <div class="fw-bold small">
+                    <a href="{% url 'product_detail' product.id %}" class="text-dark text-decoration-none">{{ product.name }}</a>
+                </div>
+                <div class="text-muted small">{{ product.category.name }}</div>
+                <div class="text-primary fw-bold mt-1">{{ product.price }} ₽</div>
+            </div>
+            <div class="card-footer bg-white text-muted small p-1 text-center">
+                🛒 Заказов: {{ product.order_count }}
+            </div>
         </div>
-    {% else %}
-        <div class="loading">😔 Пока нет популярных товаров</div>
-    {% endif %}
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Популярных товаров пока нет</div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

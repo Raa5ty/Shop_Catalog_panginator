@@ -171,6 +171,29 @@ body {
     margin: 0.25rem 0;
 }
 
+/* ===== PRODUCT IMAGES ===== */
+.product-card img,
+.card-img-top,
+.card img {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.text-center img {
+    max-height: 120px;
+    width: auto;
+}
+
+.product-card img,
+.card img {
+    height: 120px !important;
+    width: auto !important;
+    object-fit: contain !important;
+}
+
 /* ===== PAGINATION ===== */
 .pagination {
     display: flex;

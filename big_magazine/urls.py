@@ -17,9 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from big_magazine import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', lambda request: redirect('/shop/', permanent=False)),  # Редирект с корня на каталог
     path('shop/', include('shop.urls')),
 ]
+
+# Добавляем для отображения загруженных изображений в режиме разработки
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

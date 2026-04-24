@@ -4,28 +4,30 @@
 {% block title %}Каталог товаров{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 style="margin-bottom: 1.5rem;">📦 Каталог товаров</h1>
-    
-    <!-- Блок фильтрации -->
-    <div class="filters-section">
-        <form id="filter-form" class="filter-form">
-            <div class="filter-group">
-                <label>📂 Категория</label>
-                <select name="category" id="category">
+<h1 class="mb-4">📦 Каталог товаров</h1>
+
+<!-- Блок фильтрации -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form id="filter-form" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">📂 Категория</label>
+                <select name="category" id="category" class="form-select">
                     <option value="">Все категории</option>
                 </select>
             </div>
             
-            <div class="filter-group">
-                <label>💰 Цена (от - до)</label>
-                <input type="number" name="min_price" id="min_price" placeholder="от" step="100">
-                <input type="number" name="max_price" id="max_price" placeholder="до" step="100">
+            <div class="col-md-3">
+                <label class="form-label">💰 Цена (от - до)</label>
+                <div class="d-flex gap-2">
+                    <input type="number" name="min_price" id="min_price" class="form-control" placeholder="от" step="100">
+                    <input type="number" name="max_price" id="max_price" class="form-control" placeholder="до" step="100">
+                </div>
             </div>
             
-            <div class="filter-group">
-                <label>📅 Дата добавления</label>
-                <select name="days_ago" id="days_ago">
+            <div class="col-md-3">
+                <label class="form-label">📅 Дата добавления</label>
+                <select name="days_ago" id="days_ago" class="form-select">
                     <option value="">За всё время</option>
                     <option value="7">Последние 7 дней</option>
                     <option value="30">Последние 30 дней</option>
@@ -33,9 +35,9 @@
                 </select>
             </div>
             
-            <div class="filter-group">
-                <label>🔄 Сортировка</label>
-                <select name="sort" id="sort">
+            <div class="col-md-3">
+                <label class="form-label">🔄 Сортировка</label>
+                <select name="sort" id="sort" class="form-select">
                     <option value="popularity_desc">🔥 По популярности (убыв.)</option>
                     <option value="price_asc">💰 Цена (возр.)</option>
                     <option value="price_desc">💰 Цена (убыв.)</option>
@@ -45,18 +47,22 @@
             </div>
         </form>
     </div>
-    
-    <!-- Результаты -->
-    <div class="results-info">
-        <span id="total-count">Загрузка...</span>
-    </div>
-    
-    <div id="product-list" class="products-grid">
-        <div class="loading">⏳ Загрузка товаров...</div>
-    </div>
-    
-    <div id="pagination" class="pagination"></div>
 </div>
+
+<!-- Результаты -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span id="total-count" class="text-muted">Загрузка...</span>
+</div>
+
+<div id="product-list" class="row">
+    <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+    </div>
+</div>
+
+<div id="pagination" class="d-flex justify-content-center mt-4"></div>
 {% endblock %}
 
 {% block extra_js %}

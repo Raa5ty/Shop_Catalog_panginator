@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem, Category
 
 
 class OrderItemInline(admin.TabularInline):
@@ -10,10 +10,33 @@ class OrderItemInline(admin.TabularInline):
     fields = ('product', 'quantity')
     show_change_link = True
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created_at', 'products_count')
+    list_display_links = ('name',)
+    search_fields = ('name',)
+    ordering = ('name',)
+    readonly_fields = ('created_at',)
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('name', 'description')
+        }),
+        ('Системная информация', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def products_count(self, obj):
+        """Количество товаров в категории"""
+        return obj.products.count()  
+    products_count.short_description = 'Товаров'
+    products_count.admin_order_field = 'products__count'
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category', 'price', 'date_added', 'get_order_count')
+    list_display = ('id', 'name', 'category', 'price', 'date_added', 'get_order_count', 'image_preview')
     list_display_links = ('name',)
     list_filter = ('category', 'date_added')
     search_fields = ('name', 'category')
@@ -22,7 +45,11 @@ class ProductAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'category', 'price')
+            'fields': ('name', 'category', 'price', 'description')
+        }),
+        ('Изображение', {
+            'fields': ('image',),
+            'classes': ('wide',)
         }),
         ('Системная информация', {
             'fields': ('date_added',),
@@ -33,8 +60,15 @@ class ProductAdmin(admin.ModelAdmin):
     def get_order_count(self, obj):
         """Количество заказов товара"""
         return obj.orderitem_set.count()
-    get_order_count.short_description = 'Количество заказов'
-    get_order_count.admin_order_field = 'order_count'
+    get_order_count.short_description = 'Заказов'
+    
+    def image_preview(self, obj):
+        """Превью изображения в админке"""
+        if obj.image:
+            from django.utils.html import format_html
+            return format_html('<img src="{}" style="width: 50px; height: 50px; object-fit: cover;" />', obj.image.url)
+        return "Нет фото"
+    image_preview.short_description = 'Фото'
 
 
 @admin.register(Order)
