@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Order, OrderItem, Category
+from .models import Product, Order, OrderItem, Category, Cart, CartItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -126,3 +126,21 @@ class OrderItemAdmin(admin.ModelAdmin):
         total = obj.product.price * obj.quantity
         return f'{total:,.0f} ₽'
     get_item_total.short_description = 'Сумма'
+    
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'created_at', 'updated_at', 'items_count')
+    list_filter = ('created_at', 'updated_at')
+    search_fields = ('user__username', 'user__email')
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def items_count(self, obj):
+        return obj.items.count()
+    items_count.short_description = 'Товаров'
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'cart', 'product', 'quantity')
+    list_filter = ('cart__user', 'product__category')
+    search_fields = ('cart__user__username', 'product__name')

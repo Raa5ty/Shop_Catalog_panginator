@@ -70,3 +70,32 @@ class OrderItem(models.Model):
     
     def __str__(self):
         return f"Товар: {self.product.name}, Количество: {self.quantity}"
+
+
+class Cart(models.Model):
+    """Корзина пользователя"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Корзина {self.user.username}"
+
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
+
+
+class CartItem(models.Model):
+    """Товар в корзине"""
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.product.name} x{self.quantity}"
+
+    class Meta:
+        verbose_name = 'Товар в корзине'
+        verbose_name_plural = 'Товары в корзине'
+        unique_together = ('cart', 'product')  # Один товар в корзине не может дублироваться

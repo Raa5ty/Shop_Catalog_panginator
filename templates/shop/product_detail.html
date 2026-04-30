@@ -6,7 +6,6 @@
 <div class="row">
     <div class="col-md-5 text-center">
         <img src="{{ product.image.url }}" style="max-height: 300px; object-fit: contain;" class="img-fluid" alt="{{ product.name }}">
-        
     </div>
     <div class="col-md-7">
         <h1>{{ product.name }}</h1>
@@ -14,9 +13,21 @@
         <h2 class="text-primary mb-3">{{ product.price }} ₽</h2>
         <p>{{ product.description|default:"Описание отсутствует"|linebreaks }}</p>
         <p><small class="text-muted">Добавлен: {{ product.date_added|date:"d.m.Y" }}</small></p>
+        
         <div class="mt-4">
-            <a href="{% url 'product_update' product.id %}" class="btn btn-warning">✏️ Редактировать</a>
-            <a href="{% url 'product_delete' product.id %}" class="btn btn-danger">🗑️ Удалить</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'cart_add' product.id %}" class="btn btn-success">🛒 Добавить в корзину</a>
+            {% else %}
+                <p class="alert alert-warning d-inline-block p-2">
+                    🔒 <a href="{% url 'login' %}">Авторизуйтесь</a>, чтобы добавить товар в корзину
+                </p>
+            {% endif %}
+            
+            {% if user.is_staff %}
+                <a href="{% url 'product_update' product.id %}" class="btn btn-warning">✏️ Редактировать</a>
+                <a href="{% url 'product_delete' product.id %}" class="btn btn-danger">🗑️ Удалить</a>
+            {% endif %}
+            
             <a href="{% url 'product_catalog' %}" class="btn btn-secondary">Назад</a>
         </div>
     </div>

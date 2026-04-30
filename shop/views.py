@@ -6,8 +6,12 @@ from django.http import JsonResponse
 from datetime import timedelta
 from django.contrib import messages
 from shop.forms import CategoryForm, ProductForm
-from .models import Category, User, Order, Product, OrderItem
+from .models import Category, User, Order, Product, OrderItem, Cart, CartItem
 from django.db.models import Sum, Avg, Min, Max
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 
 
 # ===== НОВЫЙ AJAX VIEW ДЛЯ КАТАЛОГА =====
@@ -130,6 +134,7 @@ def category_list(request):
     return render(request, 'shop/category_list.html', {'categories': categories})
 
 # ===== СТРАНИЦА СОЗДАНИЯ КАТЕГОРИИ =====
+@staff_member_required
 def category_create(request):
     form = CategoryForm(request.POST or None)
     if form.is_valid():
@@ -139,6 +144,7 @@ def category_create(request):
     return render(request, 'shop/category_form.html', {'form': form, 'title': 'Создание категории'})
 
 # ===== СТРАНИЦА РЕДАКТИРОВАНИЯ КАТЕГОРИИ =====
+@staff_member_required
 def category_update(request, pk):
     category = get_object_or_404(Category, pk=pk)
     form = CategoryForm(request.POST or None, instance=category)
@@ -149,6 +155,7 @@ def category_update(request, pk):
     return render(request, 'shop/category_form.html', {'form': form, 'title': 'Редактирование категории'})
 
 # ===== СТРАНИЦА УДАЛЕНИЯ КАТЕГОРИИ =====
+@staff_member_required
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     products_count = category.products.count()
@@ -170,6 +177,7 @@ def product_detail(request, pk):
     return render(request, 'shop/product_detail.html', {'product': product})
 
 # ==== СТРАНИЦА СОЗДАНИЯ ТОВАРА =====
+@staff_member_required
 def product_create(request):
     form = ProductForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -179,6 +187,7 @@ def product_create(request):
     return render(request, 'shop/product_form.html', {'form': form, 'title': 'Создание товара'})
 
 # ==== СТРАНИЦА РЕДАКТИРОВАНИЯ ТОВАРА =====
+@staff_member_required
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, request.FILES or None, instance=product)
@@ -189,6 +198,7 @@ def product_update(request, pk):
     return render(request, 'shop/product_form.html', {'form': form, 'title': 'Редактирование товара'})
 
 # ==== СТРАНИЦА УДАЛЕНИЯ ТОВАРА =====
+@staff_member_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -226,3 +236,65 @@ def analytics(request):
     }
     
     return render(request, 'shop/analytics.html', context)
+
+# ==== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ИЛИ СОЗДАНИЯ КОРЗИНЫ =====
+def get_or_create_cart(user):
+    """Получить или создать корзину для пользователя"""
+    cart, created = Cart.objects.get_or_create(user=user)
+    return cart
+
+# ===== ДОБАВЛЕНИЕ ТОВАРА В КОРЗИНУ =====
+@login_required
+def cart_add(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = get_or_create_cart(request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return redirect('cart_detail')
+
+#===== УДАЛЕНИЕ ТОВАРА ИЗ КОРЗИНЫ =====
+@login_required
+def cart_remove(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    item.delete()
+    return redirect('cart_detail')
+
+#==== ОБНОВЛЕНИЕ КОЛИЧЕСТВА ТОВАРА В КОРЗИНЕ =====
+@login_required
+def cart_update(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity > 0:
+            item.quantity = quantity
+            item.save()
+        else:
+            item.delete()
+    return redirect('cart_detail')
+
+#==== СТРАНИЦА КОРЗИНЫ =====
+@login_required
+def cart_detail(request):
+    cart = get_or_create_cart(request.user)
+    items = cart.items.select_related('product')
+    total_count = sum(item.quantity for item in items)
+    total_price = sum(item.product.price * item.quantity for item in items)
+    return render(request, 'shop/cart_detail.html', {
+        'items': items,
+        'total_count': total_count,
+        'total_price': total_price,
+    })
+
+# ===== РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('product_catalog')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

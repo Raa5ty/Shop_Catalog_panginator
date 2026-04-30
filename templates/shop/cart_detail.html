@@ -1,0 +1,62 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🛒 Моя корзина</h1>
+
+{% if items %}
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Сумма</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <strong>{{ item.product.name }}</strong><br>
+                    <small class="text-muted">{{ item.product.category.name }}</small>
+                </td>
+                <td>{{ item.product.price }} ₽</td>
+                <td>
+                    <form method="post" action="{% url 'cart_update' item.id %}" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 70px;">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">🔄</button>
+                    </form>
+                </td>
+                <td>{{ item.product.price|floatformat:0 }} ₽</td>
+                <td>
+                    <a href="{% url 'cart_remove' item.id %}" class="btn btn-sm btn-danger">🗑️</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="3" class="text-end fw-bold">Итого:</td>
+                <td colspan="2"><strong>{{ total_price|floatformat:0 }} ₽</strong> ({{ total_count }} шт.)</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="text-end mt-3">
+    <a href="{% url 'product_catalog' %}" class="btn btn-secondary">Продолжить покупки</a>
+    <button class="btn btn-success" disabled>Оформить заказ (скоро)</button>
+</div>
+
+{% else %}
+<div class="alert alert-info text-center">
+    <h4>Ваша корзина пуста</h4>
+    <a href="{% url 'product_catalog' %}" class="btn btn-primary mt-2">Перейти к покупкам</a>
+</div>
+{% endif %}
+{% endblock %}

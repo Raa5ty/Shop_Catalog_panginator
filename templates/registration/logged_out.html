@@ -1,0 +1,10 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Выход{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h2>Вы вышли из системы</h2>
+    <p><a href="{% url 'login' %}">Войти снова</a> или <a href="{% url 'product_catalog' %}">вернуться на главную</a></p>
+</div>
+{% endblock %}
